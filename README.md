@@ -1,5 +1,3 @@
-# Dictionary-spell-checker
-
 # Dictionary Spell Checker (BST)
 
 This is a small C program implementing a dictionary-based spell checker using a Binary Search Tree (BST).
