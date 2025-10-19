@@ -1,118 +1,326 @@
 # Dictionary Spell Checker (BST)
 
-This is a small C program implementing a dictionary-based spell checker using a Binary Search Tree (BST).
+A comprehensive spell-checking application with both **terminal (C)** and **web (Next.js)** interfaces, implementing a Binary Search Tree (BST) for efficient word lookup.
 
-Features
-- Load words from `dictionary.txt` into a BST
-- Check if a word is present (case-insensitive)
-- Add new words (updates the BST and appends to `dictionary.txt`)
-- Display all words in alphabetical order (in-order traversal)
-- Simple suggestions: prefix matches or nearby words
+## 🎯 Two Ways to Use
 
-Why a BST?
-- BST stores words in a structure that keeps elements ordered.
-- In-order traversal prints words alphabetically without extra sorting.
-- Average search, insert, and delete are O(log n) for balanced trees. For an unbalanced tree (e.g., sorted input) performance can degrade to O(n).
-- For production-scale spell-checkers, balanced trees (AVL/Red-Black) or tries may be preferable. This project keeps the BST simple and readable.
+### 1. 🖥️ Terminal App (C)
+Beautiful command-line interface with colors and emojis
 
-Build & Run
-1. Build:
+### 2. 🌐 Web App (Next.js)
+Modern browser-based UI at `localhost:3000`
 
-   make
+---
 
-2. Run:
+---
 
-   ./spellchecker
+## ✨ Features
 
-Notes
-- The program expects a `dictionary.txt` file in the same directory. A sample is provided.
-- The suggestion algorithm is simple: it lists words sharing the same prefix or a few nearby words. It is intentionally minimal to keep the code short and readable.
+Both interfaces share these core features:
+- ✅ Check if a word is spelled correctly (case-insensitive)
+- ➕ Add new words to the dictionary
+- 📖 Display all words in alphabetical order (in-order BST traversal)
+- 💡 Smart suggestions for misspelled words (prefix matching)
+- 💾 Persistent storage in `dictionary.txt`
 
-Detailed usage and examples
----------------------------
+### Terminal App Extras
+- 🎨 Colorful ANSI output with emojis
+- 📦 Lightweight and fast
 
-Files in this folder
-- `main.c`         — the C source implementing the BST spell checker
-- `Makefile`       — build rules (runs `gcc` to produce `spellchecker`)
-- `dictionary.txt` — plaintext dictionary; one word per line (lowercase recommended)
-- `README.md`      — this file
+### Web App Extras  
+- 🎨 Modern, responsive UI with Tailwind CSS
+- 🖱️ Click suggestions to quickly check them
+- 📱 Works on mobile devices
 
-Build the program (macOS/Linux):
+---
 
-```sh
+## 🚀 Quick Start
+
+### Terminal App
+
+Build and run the C program:
+
+```bash
 make
-```
-
-This produces the executable `spellchecker`.
-
-Run interactively:
-
-```sh
 ./spellchecker
 ```
 
-Interactive menu (what to type at the program prompt):
+### Web App
 
-1) Check spelling
-   - After selecting `1`, type the word and press Enter.
-   - Example: `Cat` → program treats it case-insensitively and checks `cat`.
+Navigate to `web-ui` and start the Next.js dev server:
 
-2) Add new word to dictionary
-   - After selecting `2`, type the new word and press Enter.
-   - If the word does not already exist, the program inserts it into the in-memory BST and appends it to `dictionary.txt`.
+```bash
+cd web-ui
+npm install
+npm run dev
+```
 
-3) Display all dictionary words (alphabetical)
-   - Prints an in-order traversal of the BST; output is alphabetically sorted.
+Then open `http://localhost:3000` in your browser.
 
-4) Exit
-   - Exit the program safely. In-memory data is freed on exit.
+---
 
-Example session (user input lines are prefixed with `>`):
+## 📚 ## 📚 Why a BST?
+
+- **Ordered structure**: BST keeps words in sorted order automatically
+- **In-order traversal**: Prints words alphabetically without additional sorting
+- **Efficient operations**: Average O(log n) for search, insert, and delete (balanced tree)
+- **Simple implementation**: Easy to understand and maintain
+
+⚠️ **Note**: For very large dictionaries, consider balanced trees (AVL/Red-Black) or tries for guaranteed O(log n) performance.
+
+---
+
+## 🖥️ Terminal App Usage
+
+### Build
+
+```bash
+make
+```
+
+This compiles `main.c` into the `spellchecker` executable.
+
+### Run
+
+```bash
+./spellchecker
+```
+
+### Interactive Menu
+
+The terminal app presents a beautiful menu with colors and emojis:
 
 ```
+╔════════════════════════════════════════╗
+║   📚 Dictionary Spell Checker          ║
+╚════════════════════════════════════════╝
+
+1) 🔍 Check spelling
+2) ➕ Add new word to dictionary  
+3) 📖 Display all dictionary words
+4) 🚪 Exit
+```
+
+**Option 1: Check Spelling**
+- Enter a word (e.g., `Cat`)
+- Case-insensitive matching
+- Shows ✅ if correct or ❌ with suggestions if not found
+
+**Option 2: Add Word**
+- Enter a new word
+- Adds to in-memory BST and appends to `dictionary.txt`
+
+**Option 3: Display All**
+- Shows all words in alphabetical order
+- Color-coded output
+
+**Option 4: Exit**
+- Safely exits and frees memory
+
+### Example Session
+
+```bash
 $ ./spellchecker
-Loading dictionary from 'dictionary.txt'...
-Dictionary loaded.
 
-Dictionary Spell Checker
-1) Check spelling
-2) Add new word to dictionary
-3) Display all dictionary words (alphabetical)
-4) Exit
-Enter choice: > 1
-Enter word to check: > Cat
-'cat' is spelled correctly.
+Enter choice: 1
+Enter word to check: hello
+✓ 'hello' is spelled correctly! ✓
 
-Enter choice: > 1
-Enter word to check: > Caat
-'caat' is NOT found in the dictionary.
-No prefix matches. Showing nearby words alphabetically:
-  apple
-  banana
-  cat
-  dog
-  ...
+Enter choice: 1  
+Enter word to check: helo
+✗ 'helo' is NOT found in the dictionary.
 
-Enter choice: > 2
-Enter new word to add: > Caat
-'caat' added to dictionary and saved to file.
+💡 Suggestions:
+  → hello
+  → help
+  → held
 
-Enter choice: > 3
-Dictionary words (alphabetical):
-apple
-banana
-caat
-cat
-... 
+Enter choice: 2
+Enter new word to add: helo
+✓ 'helo' added to dictionary and saved to file! ✓
 
-Enter choice: > 4
-Exiting.
+Enter choice: 4
+👋 Goodbye! Exiting...
 ```
 
-Important implementation notes
-------------------------------
-- Case handling: All words are lowercased on load and before insertion/search. The program treats `Cat` and `cat` the same.
-- Dictionary file: The program appends newly added words to `dictionary.txt`. If you prefer not to modify the file, remove write permission or edit `main.c` to disable appending.
-- Suggestions: Currently, suggestions are produced by finding words that start with the same prefix (up to 10 matches). If none match, the program prints up to 10 words from the dictionary as a fallback. This keeps the code simple and fast.
-- Performance: For large dictionaries, an unbalanced BST can degrade to O(n) operations. If you plan to use very large dictionaries, consider replacing the BST with a balanced tree (AVL/Red-Black) or a trie for faster prefix queries.
+---
+
+## 🌐 Web App Usage
+
+### Setup
+
+```bash
+cd web-ui
+npm install
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000` in your browser.
+
+### Production Build
+
+```bash
+npm run build
+npm start
+```
+
+### Using the Web Interface
+
+1. **Check Spelling**: Type a word in the input field and click "🔍 Check Spelling" (or press Enter)
+2. **Add Word**: Click "➕ Add Word" to add the current word to the dictionary
+3. **View All**: Click "📖 View All" to see the entire dictionary in a modal
+4. **Click Suggestions**: When a word is misspelled, click any suggestion chip to check it
+
+The web app has a modern, gradient design with:
+- Real-time feedback
+- Color-coded results (green for correct, red for not found)
+- Clickable suggestion chips
+- Responsive layout for mobile/desktop
+
+---
+
+## 📁 Project Structure
+
+```
+Dictionary-spell-checker/
+├── main.c                    # C implementation with BST
+├── Makefile                  # Build configuration
+├── dictionary.txt            # Word list (shared by both apps)
+├── download-dictionary.sh    # Script to get comprehensive word list
+├── README.md                 # This file
+└── web-ui/                   # Next.js web application
+    ├── lib/
+    │   ├── bst.ts           # TypeScript BST implementation
+    │   └── dictionary.ts    # Dictionary loader/saver
+    ├── pages/
+    │   ├── api/
+    │   │   ├── check.ts     # Spell check endpoint
+    │   │   ├── add.ts       # Add word endpoint
+    │   │   └── list.ts      # List words endpoint
+    │   ├── _app.tsx         # App wrapper
+    │   └── index.tsx        # Main UI page
+    ├── styles/
+    │   └── globals.css      # Tailwind CSS
+    ├── package.json
+    └── README.md            # Web app specific docs
+```
+
+---
+
+## 📚 Expanding the Dictionary
+
+The default `dictionary.txt` has only ~28 words for testing. To use a comprehensive English dictionary:
+
+### Download Full Word List
+
+```bash
+./download-dictionary.sh
+```
+
+This downloads ~**466,000 English words** from [dwyl/english-words](https://github.com/dwyl/english-words).
+
+### Integration Options
+
+**Option 1: Replace**
+```bash
+mv dictionary-full.txt dictionary.txt
+```
+
+**Option 2: Merge**
+```bash
+cat dictionary.txt dictionary-full.txt | sort -u > dictionary-merged.txt
+mv dictionary-merged.txt dictionary.txt
+```
+
+**Option 3: Keep both** (recommended)
+
+---
+
+## 🎨 Implementation Details
+
+### Case Handling
+All words are lowercased automatically. `Cat` and `cat` are treated the same.
+
+### Dictionary File
+- Both apps read from `dictionary.txt`
+- New words are appended when added
+- Changes persist across sessions
+
+### Suggestions Algorithm
+1. Find words with matching prefix (up to 10)
+2. If no prefix matches, show first 10 words alphabetically
+3. Simple and fast for most use cases
+
+### Performance Notes
+- **Average case**: O(log n) for balanced BST
+- **Worst case**: O(n) for unbalanced BST (sorted input)
+- **Large dictionaries**: Consider AVL/Red-Black tree for guaranteed O(log n)
+
+---
+
+## 🚀 Future Enhancements
+
+**Suggestions:**
+- Levenshtein distance for smarter corrections
+- Phonetic matching (Soundex, Metaphone)
+
+**Performance:**
+- Balanced BST (AVL/Red-Black tree)
+- Trie data structure for prefix queries
+
+**Features:**
+- Word definitions via external API
+- Multiple language support
+- User authentication and personal dictionaries
+- Import/export functionality
+
+---
+
+## 🛠️ Development
+
+### Clean Build
+
+```bash
+make clean
+make
+```
+
+### Testing
+
+Terminal app:
+```bash
+echo -e "1\ntest\n4" | ./spellchecker
+```
+
+Web app:
+```bash
+cd web-ui
+npm run build
+npm test  # if tests are added
+```
+
+---
+
+## 📝 License
+
+This project is open source and available for educational purposes.
+
+---
+
+## 🤝 Contributing
+
+Feel free to fork, modify, and improve! Suggested improvements:
+- Add unit tests
+- Implement Levenshtein distance
+- Create mobile app version
+- Add word frequency analysis
+
+---
+
+**Happy spell checking! 📚✨**
 
