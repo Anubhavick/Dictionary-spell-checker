@@ -1,13 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getDictionary, saveDictionaryToFile } from '@/lib/dictionary';
+import { exec } from 'child_process';
+import path from 'path';
 
 type AddResponse = {
   word: string;
   success: boolean;
   message: string;
+  timeMs: number;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<AddResponse | { error: string }>
 ) {
@@ -15,40 +17,39 @@ export default function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { word } = req.body;
+  const { word, method = 'bst' } = req.body;
 
   if (!word || typeof word !== 'string') {
     return res.status(400).json({ error: 'Word is required' });
   }
 
-  const dictionary = getDictionary();
-  const cleanWord = word.toLowerCase().trim();
+  const dictMethod = method === 'hashmap' ? 'hashmap' : 'bst';
+  const projectRoot = path.join(process.cwd(), '..');
+  
+  const command = {
+    command: 'add',
+    word: word.toLowerCase().trim(),
+    method: dictMethod
+  };
 
-  // Check if already exists
-  if (dictionary.search(cleanWord)) {
-    return res.status(200).json({
-      word: cleanWord,
-      success: false,
-      message: 'Word already exists in dictionary',
-    });
-  }
+  const jsonCommand = JSON.stringify(command);
 
-  // Add to BST
-  dictionary.insert(cleanWord);
+  exec(`cd ${projectRoot} && echo '${jsonCommand}' | ./dictionary_api`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error executing C API:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
 
-  // Save to file
-  try {
-    saveDictionaryToFile(cleanWord);
-    res.status(200).json({
-      word: cleanWord,
-      success: true,
-      message: 'Word added successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      word: cleanWord,
-      success: false,
-      message: 'Word added to memory but failed to save to file',
-    });
-  }
+    if (stderr) {
+      console.error('C API stderr:', stderr);
+    }
+
+    try {
+      const result = JSON.parse(stdout.trim());
+      res.status(200).json(result);
+    } catch (e) {
+      console.error('Error parsing C API response:', e);
+      res.status(500).json({ error: 'Invalid response from C API' });
+    }
+  });
 }

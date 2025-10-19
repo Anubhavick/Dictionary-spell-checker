@@ -5,7 +5,11 @@ type CheckResult = {
   word: string;
   found: boolean;
   suggestions?: string[];
+  timeMs?: number;
+  method?: string;
 };
+
+type Method = 'bst' | 'hashmap';
 
 export default function Home() {
   const [word, setWord] = useState('');
@@ -14,20 +18,26 @@ export default function Home() {
   const [showAllWords, setShowAllWords] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [method, setMethod] = useState<Method>('hashmap');
+  const [timing, setTiming] = useState<string>('');
 
   const checkSpelling = async () => {
     if (!word.trim()) return;
     
     setLoading(true);
     setMessage('');
+    setTiming('');
     try {
       const res = await fetch('/api/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word }),
+        body: JSON.stringify({ word, method }),
       });
       const data = await res.json();
       setResult(data);
+      if (data.timeMs !== undefined) {
+        setTiming(`⏱️ Search completed in ${data.timeMs.toFixed(4)}ms using ${data.method?.toUpperCase() || method.toUpperCase()}`);
+      }
     } catch (error) {
       setMessage('Error checking word');
     }
@@ -39,14 +49,18 @@ export default function Home() {
     
     setLoading(true);
     setMessage('');
+    setTiming('');
     try {
       const res = await fetch('/api/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word }),
+        body: JSON.stringify({ word, method }),
       });
       const data = await res.json();
       setMessage(data.message);
+      if (data.timeMs !== undefined) {
+        setTiming(`⏱️ Operation completed in ${data.timeMs.toFixed(4)}ms using ${data.method?.toUpperCase() || method.toUpperCase()}`);
+      }
       if (data.success) {
         setWord('');
         setResult(null);
@@ -59,11 +73,15 @@ export default function Home() {
 
   const loadAllWords = async () => {
     setLoading(true);
+    setTiming('');
     try {
-      const res = await fetch('/api/list');
+      const res = await fetch(`/api/list?method=${method}`);
       const data = await res.json();
       setAllWords(data.words);
       setShowAllWords(true);
+      if (data.timeMs !== undefined) {
+        setTiming(`⏱️ Loaded ${data.count} words in ${data.timeMs.toFixed(4)}ms using ${method.toUpperCase()}`);
+      }
     } catch (error) {
       setMessage('Error loading dictionary');
     }
@@ -86,8 +104,44 @@ export default function Home() {
               📚 Dictionary Spell Checker
             </h1>
             <p className="text-gray-600 text-lg">
-              Powered by Binary Search Tree (BST)
+              Powered by C implementations
             </p>
+          </div>
+
+          {/* Method Selector */}
+          <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  ⚙️ Data Structure Method
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Choose between Binary Search Tree or Hash Map for performance comparison
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setMethod('bst')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    method === 'bst'
+                      ? 'bg-blue-500 text-white shadow-lg'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  🌲 BST
+                </button>
+                <button
+                  onClick={() => setMethod('hashmap')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    method === 'hashmap'
+                      ? 'bg-blue-500 text-white shadow-lg'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  # Hash Map
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Main Card */}
@@ -133,6 +187,13 @@ export default function Home() {
                 📖 View All
               </button>
             </div>
+
+            {/* Timing Info */}
+            {timing && (
+              <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800 rounded font-mono text-sm">
+                {timing}
+              </div>
+            )}
 
             {/* Message */}
             {message && (
@@ -209,7 +270,8 @@ export default function Home() {
           {/* Footer Info */}
           <div className="mt-8 text-center text-gray-600 text-sm">
             <p>Built with Next.js, TypeScript, and Tailwind CSS</p>
-            <p className="mt-1">Using Binary Search Tree for efficient word lookup</p>
+            <p className="mt-1">Backend powered by C with {method === 'bst' ? 'Binary Search Tree' : 'Hash Map (DJB2)'}</p>
+            <p className="mt-1 text-xs">💡 Tip: Try switching methods to compare performance!</p>
           </div>
         </div>
       </main>

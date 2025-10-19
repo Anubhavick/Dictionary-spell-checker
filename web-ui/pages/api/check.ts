@@ -1,13 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getDictionary } from '@/lib/dictionary';
+import { exec } from 'child_process';
+import path from 'path';
 
 type CheckResponse = {
   word: string;
   found: boolean;
   suggestions?: string[];
+  timeMs: number;
+  method: string;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<CheckResponse | { error: string }>
 ) {
@@ -15,23 +18,39 @@ export default function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { word } = req.body;
+  const { word, method = 'bst' } = req.body;
 
   if (!word || typeof word !== 'string') {
     return res.status(400).json({ error: 'Word is required' });
   }
 
-  const dictionary = getDictionary();
-  const found = dictionary.search(word);
-
-  const response: CheckResponse = {
+  const dictMethod = method === 'hashmap' ? 'hashmap' : 'bst';
+  const projectRoot = path.join(process.cwd(), '..');
+  
+  const command = {
+    command: 'check',
     word: word.toLowerCase().trim(),
-    found,
+    method: dictMethod
   };
 
-  if (!found) {
-    response.suggestions = dictionary.getSuggestions(word, 10);
-  }
+  const jsonCommand = JSON.stringify(command);
 
-  res.status(200).json(response);
+  exec(`cd ${projectRoot} && echo '${jsonCommand}' | ./dictionary_api`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error executing C API:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    if (stderr) {
+      console.error('C API stderr:', stderr);
+    }
+
+    try {
+      const result = JSON.parse(stdout.trim());
+      res.status(200).json(result);
+    } catch (e) {
+      console.error('Error parsing C API response:', e);
+      res.status(500).json({ error: 'Invalid response from C API' });
+    }
+  });
 }
