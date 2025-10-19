@@ -1,42 +1,43 @@
-# Dictionary Spell Checker (BST)
+# Dictionary Spell Checker
 
 A comprehensive spell-checking application with both **terminal (C)** and **web (Next.js)** interfaces, implementing a Binary Search Tree (BST) for efficient word lookup.
 
-## 🎯 Two Ways to Use
+## Overview
 
-### 1. 🖥️ Terminal App (C)
-Beautiful command-line interface with colors and emojis
+This project provides two interfaces for spell-checking functionality:
 
-### 2. 🌐 Web App (Next.js)
-Modern browser-based UI at `localhost:3000`
+### 1. Terminal Application (C)
+Command-line interface with ANSI color support
+
+### 2. Web Application (Next.js)
+Modern browser-based UI running on `localhost:3000`
 
 ---
 
----
-
-## ✨ Features
+## Features
 
 Both interfaces share these core features:
-- ✅ Check if a word is spelled correctly (case-insensitive)
-- ➕ Add new words to the dictionary
-- 📖 Display all words in alphabetical order (in-order BST traversal)
-- 💡 Smart suggestions for misspelled words (prefix matching)
-- 💾 Persistent storage in `dictionary.txt`
+- Check if a word is spelled correctly (case-insensitive)
+- Add new words to the dictionary
+- Display all words in alphabetical order (in-order BST traversal)
+- Smart suggestions for misspelled words (prefix matching)
+- Persistent storage in `dictionary.txt`
 
-### Terminal App Extras
-- 🎨 Colorful ANSI output with emojis
-- 📦 Lightweight and fast
+### Terminal App
+- Colorful ANSI output
+- Lightweight and fast
+- Zero dependencies
 
-### Web App Extras  
-- 🎨 Modern, responsive UI with Tailwind CSS
-- 🖱️ Click suggestions to quickly check them
-- 📱 Works on mobile devices
+### Web App
+- Modern, responsive UI with Tailwind CSS
+- Click suggestions to quickly check them
+- Mobile-friendly design
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Terminal App
+### Terminal Application
 
 Build and run the C program:
 
@@ -45,7 +46,7 @@ make
 ./spellchecker
 ```
 
-### Web App
+### Web Application
 
 Navigate to `web-ui` and start the Next.js dev server:
 
@@ -59,18 +60,81 @@ Then open `http://localhost:3000` in your browser.
 
 ---
 
-## 📚 ## 📚 Why a BST?
+## Architecture
+
+### System Flow
+
+```mermaid
+graph TB
+    A[User Input] --> B{Interface Type}
+    B -->|Terminal| C[C Application]
+    B -->|Web| D[Next.js Frontend]
+    D --> E[API Routes]
+    E --> F[TypeScript BST]
+    C --> G[C BST Implementation]
+    F --> H[dictionary.txt]
+    G --> H
+    H --> I[Persistent Storage]
+```
+
+### Data Structure: Binary Search Tree
+
+```mermaid
+graph TD
+    A[Root: 'lion'] --> B[Left: 'cat']
+    A --> C[Right: 'zebra']
+    B --> D[Left: 'apple']
+    B --> E[Right: 'dog']
+    C --> F[Left: 'snake']
+    C --> G[Right: null]
+    
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#fff3e0
+    style E fill:#fff3e0
+    style F fill:#fff3e0
+```
+
+### Application Workflow
+
+```mermaid
+flowchart LR
+    A[Start] --> B[Load Dictionary]
+    B --> C[Display Menu]
+    C --> D{User Choice}
+    D -->|1| E[Check Spelling]
+    D -->|2| F[Add Word]
+    D -->|3| G[Display All]
+    D -->|4| H[Exit]
+    E --> I{Word Found?}
+    I -->|Yes| J[Show Success]
+    I -->|No| K[Show Suggestions]
+    J --> C
+    K --> C
+    F --> L[Insert to BST]
+    L --> M[Append to File]
+    M --> C
+    G --> N[In-order Traversal]
+    N --> C
+    H --> O[Free Memory]
+    O --> P[End]
+```
+
+---
+
+## Why Binary Search Tree?
 
 - **Ordered structure**: BST keeps words in sorted order automatically
 - **In-order traversal**: Prints words alphabetically without additional sorting
 - **Efficient operations**: Average O(log n) for search, insert, and delete (balanced tree)
 - **Simple implementation**: Easy to understand and maintain
 
-⚠️ **Note**: For very large dictionaries, consider balanced trees (AVL/Red-Black) or tries for guaranteed O(log n) performance.
+**Note**: For very large dictionaries, consider balanced trees (AVL/Red-Black) or tries for guaranteed O(log n) performance.
 
 ---
 
-## 🖥️ Terminal App Usage
+## Terminal Application Usage
 
 ### Build
 
@@ -88,23 +152,23 @@ This compiles `main.c` into the `spellchecker` executable.
 
 ### Interactive Menu
 
-The terminal app presents a beautiful menu with colors and emojis:
+The terminal app presents a menu interface:
 
 ```
 ╔════════════════════════════════════════╗
-║   📚 Dictionary Spell Checker          ║
+║   Dictionary Spell Checker             ║
 ╚════════════════════════════════════════╝
 
-1) 🔍 Check spelling
-2) ➕ Add new word to dictionary  
-3) 📖 Display all dictionary words
-4) 🚪 Exit
+1) Check spelling
+2) Add new word to dictionary  
+3) Display all dictionary words
+4) Exit
 ```
 
 **Option 1: Check Spelling**
 - Enter a word (e.g., `Cat`)
 - Case-insensitive matching
-- Shows ✅ if correct or ❌ with suggestions if not found
+- Shows success message if correct or suggestions if not found
 
 **Option 2: Add Word**
 - Enter a new word
@@ -124,28 +188,28 @@ $ ./spellchecker
 
 Enter choice: 1
 Enter word to check: hello
-✓ 'hello' is spelled correctly! ✓
+'hello' is spelled correctly!
 
 Enter choice: 1  
 Enter word to check: helo
-✗ 'helo' is NOT found in the dictionary.
+'helo' is NOT found in the dictionary.
 
-💡 Suggestions:
-  → hello
-  → help
-  → held
+Suggestions:
+  -> hello
+  -> help
+  -> held
 
 Enter choice: 2
 Enter new word to add: helo
-✓ 'helo' added to dictionary and saved to file! ✓
+'helo' added to dictionary and saved to file!
 
 Enter choice: 4
-👋 Goodbye! Exiting...
+Goodbye! Exiting...
 ```
 
 ---
 
-## 🌐 Web App Usage
+## Web Application Usage
 
 ### Setup
 
@@ -171,12 +235,12 @@ npm start
 
 ### Using the Web Interface
 
-1. **Check Spelling**: Type a word in the input field and click "🔍 Check Spelling" (or press Enter)
-2. **Add Word**: Click "➕ Add Word" to add the current word to the dictionary
-3. **View All**: Click "📖 View All" to see the entire dictionary in a modal
+1. **Check Spelling**: Type a word in the input field and click "Check Spelling" (or press Enter)
+2. **Add Word**: Click "Add Word" to add the current word to the dictionary
+3. **View All**: Click "View All" to see the entire dictionary in a modal
 4. **Click Suggestions**: When a word is misspelled, click any suggestion chip to check it
 
-The web app has a modern, gradient design with:
+The web app features:
 - Real-time feedback
 - Color-coded results (green for correct, red for not found)
 - Clickable suggestion chips
@@ -184,7 +248,40 @@ The web app has a modern, gradient design with:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
+
+```mermaid
+graph LR
+    A[Dictionary-spell-checker/] --> B[main.c]
+    A --> C[Makefile]
+    A --> D[dictionary.txt]
+    A --> E[download-dictionary.sh]
+    A --> F[README.md]
+    A --> G[web-ui/]
+    
+    G --> H[lib/]
+    G --> I[pages/]
+    G --> J[styles/]
+    G --> K[package.json]
+    
+    H --> L[bst.ts]
+    H --> M[dictionary.ts]
+    
+    I --> N[api/]
+    I --> O[index.tsx]
+    
+    N --> P[check.ts]
+    N --> Q[add.ts]
+    N --> R[list.ts]
+    
+    style A fill:#e3f2fd
+    style G fill:#fff3e0
+    style H fill:#f1f8e9
+    style I fill:#f1f8e9
+    style N fill:#fce4ec
+```
+
+### Directory Layout
 
 ```
 Dictionary-spell-checker/
@@ -212,7 +309,7 @@ Dictionary-spell-checker/
 
 ---
 
-## 📚 Expanding the Dictionary
+## Expanding the Dictionary
 
 The default `dictionary.txt` has only ~28 words for testing. To use a comprehensive English dictionary:
 
@@ -241,7 +338,7 @@ mv dictionary-merged.txt dictionary.txt
 
 ---
 
-## 🎨 Implementation Details
+## Implementation Details
 
 ### Case Handling
 All words are lowercased automatically. `Cat` and `cat` are treated the same.
@@ -252,36 +349,63 @@ All words are lowercased automatically. `Cat` and `cat` are treated the same.
 - Changes persist across sessions
 
 ### Suggestions Algorithm
+
+```mermaid
+flowchart TD
+    A[User enters word] --> B{Word found?}
+    B -->|Yes| C[Return success]
+    B -->|No| D[Search for prefix matches]
+    D --> E{Prefix matches found?}
+    E -->|Yes| F[Return up to 10 matches]
+    E -->|No| G[Return first 10 words]
+    F --> H[Display suggestions]
+    G --> H
+```
+
+Algorithm steps:
 1. Find words with matching prefix (up to 10)
 2. If no prefix matches, show first 10 words alphabetically
 3. Simple and fast for most use cases
 
-### Performance Notes
-- **Average case**: O(log n) for balanced BST
-- **Worst case**: O(n) for unbalanced BST (sorted input)
-- **Large dictionaries**: Consider AVL/Red-Black tree for guaranteed O(log n)
+### Performance Complexity
+
+| Operation | Average Case | Worst Case | Space |
+|-----------|-------------|------------|-------|
+| Search    | O(log n)    | O(n)       | O(1)  |
+| Insert    | O(log n)    | O(n)       | O(1)  |
+| Delete    | O(log n)    | O(n)       | O(1)  |
+| Traversal | O(n)        | O(n)       | O(n)  |
+
+**Notes:**
+- Average case assumes a balanced BST
+- Worst case occurs with sorted input (degenerates to linked list)
+- For large dictionaries, consider AVL or Red-Black tree for guaranteed O(log n)
 
 ---
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
-**Suggestions:**
+### Suggestions
 - Levenshtein distance for smarter corrections
 - Phonetic matching (Soundex, Metaphone)
+- N-gram based similarity
 
-**Performance:**
+### Performance
 - Balanced BST (AVL/Red-Black tree)
 - Trie data structure for prefix queries
+- Hash table for O(1) lookup
 
-**Features:**
+### Features
 - Word definitions via external API
 - Multiple language support
 - User authentication and personal dictionaries
 - Import/export functionality
+- Word frequency analysis
+- Autocomplete functionality
 
 ---
 
-## 🛠️ Development
+## Development
 
 ### Clean Build
 
@@ -304,23 +428,36 @@ npm run build
 npm test  # if tests are added
 ```
 
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/check` | POST | Check if word exists, return suggestions |
+| `/api/add` | POST | Add new word to dictionary |
+| `/api/list` | GET | Get all words in alphabetical order |
+
 ---
 
-## 📝 License
+## License
 
 This project is open source and available for educational purposes.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Feel free to fork, modify, and improve! Suggested improvements:
+Contributions are welcome! Suggested improvements:
 - Add unit tests
 - Implement Levenshtein distance
 - Create mobile app version
 - Add word frequency analysis
+- Implement autocomplete
+- Add multi-language support
 
 ---
 
-**Happy spell checking! 📚✨**
+## Acknowledgments
+
+- Dictionary word list from [dwyl/english-words](https://github.com/dwyl/english-words)
+- Built with C, Next.js, TypeScript, and Tailwind CSS
 
