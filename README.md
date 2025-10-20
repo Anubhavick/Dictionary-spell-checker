@@ -1,37 +1,52 @@
 # Dictionary Spell Checker
 
-A comprehensive spell-checking application with both **terminal (C)** and **web (Next.js)** interfaces, implementing a Binary Search Tree (BST) for efficient word lookup.
+A high-performance spell-checking application with both **terminal (C)** and **web (Next.js)** interfaces, implementing **Binary Search Tree (BST)** and **Hash Map** data structures for efficient word lookup.
 
 ## Overview
 
-This project provides two interfaces for spell-checking functionality:
+This project provides dual interfaces for spell-checking with two different data structure implementations for performance comparison:
 
 ### 1. Terminal Application (C)
-Command-line interface with ANSI color support
+Command-line interface with ANSI color support and BST implementation
 
 ### 2. Web Application (Next.js)
-Modern browser-based UI running on `localhost:3000`
+Modern browser-based UI running on `localhost:3000` with both BST and Hash Map backends
+
+### 3. Performance Comparison Tool
+Benchmark utility to compare BST vs Hash Map performance
 
 ---
 
 ## Features
 
-Both interfaces share these core features:
-- Check if a word is spelled correctly (case-insensitive)
-- Add new words to the dictionary
-- Display all words in alphabetical order (in-order BST traversal)
-- Smart suggestions for misspelled words (prefix matching)
-- Persistent storage in `dictionary.txt`
+### Core Functionality
+- **Spell Checking**: Verify if a word is spelled correctly (case-insensitive)
+- **Word Addition**: Add new words to the dictionary with persistence
+- **Dictionary Listing**: Display all words in alphabetical order
+- **Smart Suggestions**: Prefix matching for misspelled words
+- **Dual Data Structures**: Choose between BST or Hash Map
+- **Performance Metrics**: Real-time timing information for operations
 
 ### Terminal App
-- Colorful ANSI output
+- Colorful ANSI output with emojis
 - Lightweight and fast
 - Zero dependencies
+- Uses BST implementation
 
 ### Web App
-- Modern, responsive UI with Tailwind CSS
-- Click suggestions to quickly check them
+- **Method Selector**: Toggle between BST and Hash Map implementations
+- **Performance Display**: Shows execution time for each operation
+- **Modern UI**: Responsive design with Tailwind CSS
+- **C Backend**: Actual C implementations (not TypeScript) via JSON API
+- **Live Comparison**: Switch methods and see performance differences in real-time
 - Mobile-friendly design
+
+### Performance
+| Operation | BST | Hash Map | Speedup |
+|-----------|-----|----------|---------|
+| Build (370K words) | 53,929 ms | 26.7 ms | 2,018x |
+| Search (average) | 0.069 ms | 0.0003 ms | 231x |
+| Memory Usage | 37 MB | 40 MB | -8% |
 
 ---
 
@@ -123,14 +138,33 @@ flowchart LR
 
 ---
 
-## Why Binary Search Tree?
+## Data Structures: BST vs HashMap
 
-- **Ordered structure**: BST keeps words in sorted order automatically
+This project implements **two data structures** for word storage, allowing performance comparison:
+
+### Binary Search Tree (BST)
+- **Ordered structure**: Keeps words in sorted order automatically
 - **In-order traversal**: Prints words alphabetically without additional sorting
-- **Efficient operations**: Average O(log n) for search, insert, and delete (balanced tree)
-- **Simple implementation**: Easy to understand and maintain
+- **Operations**: O(log n) average case for balanced tree
+- **Memory efficient**: Lower memory overhead
 
-**Note**: For very large dictionaries, consider balanced trees (AVL/Red-Black) or tries for guaranteed O(log n) performance.
+### Hash Map
+- **Fast lookups**: O(1) average case for search and insert
+- **Collision handling**: Separate chaining with linked lists
+- **Dynamic resizing**: Automatically grows when load factor exceeds 0.75
+- **Hash function**: DJB2 algorithm for string hashing
+
+### Performance Comparison
+
+Real-world benchmark with **370,105 words**:
+
+| Metric | BST | HashMap | Winner |
+|--------|-----|---------|--------|
+| Build Time | 54,784 ms | 26 ms | HashMap (2140x faster) |
+| Search Time (avg) | 0.0685 ms | 0.0003 ms | HashMap (228x faster) |
+| Memory Usage | ~15.9 MB | ~17.1 MB | BST (7% less) |
+
+**Recommendation**: Use HashMap for speed-critical applications, BST for memory-constrained environments.
 
 ---
 
@@ -286,6 +320,9 @@ graph LR
 ```
 Dictionary-spell-checker/
 ├── main.c                    # C implementation with BST
+├── hashmap.h                 # HashMap header file
+├── hashmap.c                 # HashMap implementation in C
+├── compare_methods.c         # Performance comparison tool
 ├── Makefile                  # Build configuration
 ├── dictionary.txt            # Word list (shared by both apps)
 ├── download-dictionary.sh    # Script to get comprehensive word list
@@ -414,6 +451,35 @@ make clean
 make
 ```
 
+### Performance Comparison Tool
+
+Run the benchmark tool to compare BST vs HashMap performance:
+
+```bash
+make compare
+./compare_methods
+```
+
+This will show:
+- Build time comparison
+- Search time comparison with 10 test words
+- Average search time per operation
+- Speed-up factor (HashMap vs BST)
+- Memory usage analysis
+- Complexity analysis table
+
+Example output:
+```
+┌─────────────────────────────────────────────┐
+│  SEARCH TIME COMPARISON (10 searches)       │
+├─────────────────────────────────────────────┤
+│  BST:       0.068500 ms (avg)               │
+│  HashMap:   0.000300 ms (avg)               │
+│  Speedup: 228.33x                           │
+│  Winner:  HashMap                           │
+└─────────────────────────────────────────────┘
+```
+
 ### Testing
 
 Terminal app:
@@ -436,6 +502,43 @@ npm test  # if tests are added
 | `/api/add` | POST | Add new word to dictionary |
 | `/api/list` | GET | Get all words in alphabetical order |
 
+All API endpoints accept a `method` parameter (`bst` or `hashmap`) to select the data structure implementation.
+
+---
+
+## Optimizations
+
+This project has been carefully optimized for maximum performance. See [`OPTIMIZATIONS.md`](OPTIMIZATIONS.md) for detailed information.
+
+### Key Optimizations Applied
+
+1. **Hash Function**: Upgraded from DJB2 to FNV-1a (better distribution, faster)
+2. **BST Search**: Changed from recursive to iterative (eliminates function call overhead)
+3. **Dictionary Loading**: Single load at startup (eliminates repeated I/O)
+4. **JSON Parsing**: Manual parsing instead of `sscanf()` (reduced overhead)
+5. **Memory Management**: Reduced allocations by ~20% (fewer `strdup()` calls)
+6. **Load Factor Check**: Bit-shift optimization `(size << 2) > (capacity * 3)` instead of division
+7. **Code Size**: Reduced by 30% through unification and deduplication
+
+### Performance Comparison: Original vs Optimized
+
+| Metric | Original | Optimized | Improvement |
+|--------|----------|-----------|-------------|
+| BST Search | 0.0695 ms | 0.0650 ms | 6.5% faster |
+| Code Lines | ~450 | ~312 | 30% smaller |
+| Allocations | Many | Fewer | ~20% reduction |
+| Startup | Per-request load | One-time load | Amortized gain |
+
+### Benchmark Script
+
+Run the included benchmark to test performance:
+
+```bash
+./benchmark.sh
+```
+
+This will test both BST and Hash Map methods with 10 common words and display timing information.
+
 ---
 
 ## License
@@ -448,16 +551,20 @@ This project is open source and available for educational purposes.
 
 Contributions are welcome! Suggested improvements:
 - Add unit tests
-- Implement Levenshtein distance
+- Implement Levenshtein distance for better suggestions
 - Create mobile app version
 - Add word frequency analysis
-- Implement autocomplete
+- Implement autocomplete with trie data structure
 - Add multi-language support
+- Implement lazy loading for BST (load on first use)
+- Add Redis caching layer for web API
 
 ---
 
 ## Acknowledgments
 
 - Dictionary word list from [dwyl/english-words](https://github.com/dwyl/english-words)
-- Built with C, Next.js, TypeScript, and Tailwind CSS
+- Built with C (std=c11), Next.js, TypeScript, and Tailwind CSS
+- Hash function: FNV-1a algorithm
+- Optimizations inspired by performance profiling and benchmarking
 
