@@ -30,9 +30,11 @@ typedef struct BSTNode {
     struct BSTNode *right;
 } BSTNode;
 
-// Global dictionaries (loaded once)
+// Global dictionaries (lazy loaded)
 static BSTNode *g_bst_root = NULL;
 static HashMap *g_hashmap = NULL;
+static int g_bst_loaded = 0;
+static int g_hashmap_loaded = 0;
 
 // Fast inline functions
 static inline BSTNode *bst_create_node(const char *word) {
@@ -104,19 +106,18 @@ void bst_free(BSTNode *root) {
     free(root);
 }
 
-// Optimized dictionary loading with shared buffer
-static void load_dictionary(const char *filename) {
+// Lazy load BST only when needed
+static void load_bst(const char *filename) {
+    if (g_bst_loaded) return;
+    
     FILE *f = fopen(filename, "r");
     if (!f) {
         fprintf(stderr, "Warning: Cannot open %s\n", filename);
         return;
     }
 
-    g_hashmap = hashmap_create(0);
     char buffer[MAX_WORD_LEN];
-    
     while (fgets(buffer, sizeof(buffer), f)) {
-        // Trim whitespace in one pass
         char *start = buffer, *end;
         while (*start && isspace(*start)) ++start;
         if (!*start) continue;
@@ -126,9 +127,38 @@ static void load_dictionary(const char *filename) {
         
         to_lowercase(start);
         g_bst_root = bst_insert(g_bst_root, start);
-        if (g_hashmap) hashmap_insert(g_hashmap, start);
     }
     fclose(f);
+    g_bst_loaded = 1;
+}
+
+// Lazy load HashMap only when needed
+static void load_hashmap(const char *filename) {
+    if (g_hashmap_loaded) return;
+    
+    g_hashmap = hashmap_create(0);
+    if (!g_hashmap) return;
+
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        fprintf(stderr, "Warning: Cannot open %s\n", filename);
+        return;
+    }
+
+    char buffer[MAX_WORD_LEN];
+    while (fgets(buffer, sizeof(buffer), f)) {
+        char *start = buffer, *end;
+        while (*start && isspace(*start)) ++start;
+        if (!*start) continue;
+        
+        end = start + strlen(start) - 1;
+        while (end > start && isspace(*end)) *end-- = '\0';
+        
+        to_lowercase(start);
+        hashmap_insert(g_hashmap, start);
+    }
+    fclose(f);
+    g_hashmap_loaded = 1;
 }
 
 // Optimized HashMap suggestions (avoid full word list generation)
@@ -177,22 +207,37 @@ static char *find_json_value(const char *json, const char *key) {
 
 // Unified command handler
 static void handle_command(const char *input) {
-    char *cmd = find_json_value(input, "command");
-    if (!cmd) return;
-    
-    char *word_str = find_json_value(input, "word");
+    /*
+     * find_json_value() returns a pointer to a static buffer.
+     * Copy values out immediately into local buffers so subsequent
+     * calls don't overwrite earlier values.
+     */
+    char cmd_buf[MAX_WORD_LEN] = "";
+    char method_buf[MAX_WORD_LEN] = "";
+
+    char *tmp = find_json_value(input, "command");
+    if (!tmp) return;
+    strncpy(cmd_buf, tmp, MAX_WORD_LEN - 1);
+
     char word[MAX_WORD_LEN] = "";
-    if (word_str) {
-        strncpy(word, word_str, MAX_WORD_LEN - 1);
+    tmp = find_json_value(input, "word");
+    if (tmp) {
+        strncpy(word, tmp, MAX_WORD_LEN - 1);
         to_lowercase(word);
     }
-    
-    char *method_str = find_json_value(input, "method");
-    int use_hashmap = (method_str && strcmp(method_str, "hashmap") == 0);
+
+    tmp = find_json_value(input, "method");
+    if (tmp) strncpy(method_buf, tmp, MAX_WORD_LEN - 1);
+
+    int use_hashmap = (method_buf[0] && strcmp(method_buf, "hashmap") == 0);
     const char *method = use_hashmap ? "hashmap" : "bst";
 
+    /* Lazy load the required data structure */
+    if (use_hashmap) load_hashmap(DICT_FILE);
+    else load_bst(DICT_FILE);
+
     // CHECK command
-    if (strcmp(cmd, "check") == 0) {
+    if (strcmp(cmd_buf, "check") == 0) {
         double start = get_time_ms();
         int found = use_hashmap ? hashmap_search(g_hashmap, word) : bst_search(g_bst_root, word);
         double elapsed = get_time_ms() - start;
@@ -237,7 +282,7 @@ static void handle_command(const char *input) {
         printf("}\n");
     }
     // ADD command
-    else if (strcmp(cmd, "add") == 0) {
+    else if (strcmp(cmd_buf, "add") == 0) {
         double start = get_time_ms();
         int exists = use_hashmap ? hashmap_search(g_hashmap, word) : bst_search(g_bst_root, word);
         
@@ -259,7 +304,7 @@ static void handle_command(const char *input) {
                !exists ? "Word added successfully" : "Word already exists", elapsed);
     }
     // LIST command
-    else if (strcmp(cmd, "list") == 0) {
+    else if (strcmp(cmd_buf, "list") == 0) {
         double start = get_time_ms();
         
         if (use_hashmap) {
@@ -295,8 +340,8 @@ static void handle_command(const char *input) {
 }
 
 int main(void) {
-    // Load dictionaries once at startup
-    load_dictionary(DICT_FILE);
+    // Don't load anything at startup - use lazy loading for fast startup
+    // Dictionary will be loaded on first use based on method requested
 
     char input[MAX_INPUT];
     while (fgets(input, sizeof(input), stdin)) {
@@ -304,8 +349,8 @@ int main(void) {
     }
 
     // Cleanup
-    bst_free(g_bst_root);
-    hashmap_destroy(g_hashmap);
+    if (g_bst_loaded) bst_free(g_bst_root);
+    if (g_hashmap_loaded) hashmap_destroy(g_hashmap);
 
     return 0;
 }

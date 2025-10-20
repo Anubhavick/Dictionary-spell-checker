@@ -34,22 +34,24 @@ export default async function handler(
 
   const jsonCommand = JSON.stringify(command);
 
-  exec(`cd ${projectRoot} && echo '${jsonCommand}' | ./dictionary_api`, (error, stdout, stderr) => {
-    if (error) {
-      console.error('Error executing C API:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
+  exec(`cd ${projectRoot} && echo '${jsonCommand}' | ./dictionary_api`,
+    { timeout: 120000, maxBuffer: 1024 * 1024 },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error executing C API:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
 
-    if (stderr) {
-      console.error('C API stderr:', stderr);
-    }
+      if (stderr) {
+        console.error('C API stderr:', stderr);
+      }
 
-    try {
-      const result = JSON.parse(stdout.trim());
-      res.status(200).json(result);
-    } catch (e) {
-      console.error('Error parsing C API response:', e);
-      res.status(500).json({ error: 'Invalid response from C API' });
-    }
-  });
+      try {
+        const result = JSON.parse(stdout.trim());
+        return res.status(200).json(result);
+      } catch (e) {
+        console.error('Error parsing C API response:', e);
+        return res.status(500).json({ error: 'Invalid response from C API' });
+      }
+    });
 }
