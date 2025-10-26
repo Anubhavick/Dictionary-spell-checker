@@ -2,16 +2,16 @@
 
 A high-performance spell checker with both **Binary Search Tree (BST)** and **HashMap** implementations. Features a clean web interface built with Next.js and powerful C backend for fast dictionary operations.
 
-## 📚 Features
+## Features
 
-- ✅ **Check Spelling**: Verify if a word exists in the dictionary
-- ➕ **Add Words**: Add new words (automatically sorted alphabetically)
-- 📋 **View All**: List all dictionary words
-- 🔀 **Two Algorithms**: Choose between BST or HashMap
-- 🖥️ **Terminal Interface**: Simple, clean CLI
-- 🌐 **Web Interface**: Modern, responsive UI
+- **Check Spelling**: Verify if a word exists in the dictionary
+- **Add Words**: Add new words (automatically sorted alphabetically)
+- **View All**: List all dictionary words
+- **Two Algorithms**: Choose between BST or HashMap
+- **Terminal Interface**: Simple, clean CLI
+- **Web Interface**: Modern, responsive UI
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Compile the C Programs
 
@@ -75,7 +75,7 @@ The web UI allows you to:
 - Add new words to the dictionary
 - View all dictionary words
 
-## 🔍 BST vs HashMap: Performance Comparison
+## BST vs HashMap: Performance Comparison
 
 ### Binary Search Tree (BST)
 
@@ -87,14 +87,14 @@ The web UI allows you to:
 **Space Complexity:** O(n)
 
 **Pros:**
-- ✅ Maintains sorted order naturally
-- ✅ Good for range queries
-- ✅ Memory efficient
+- Maintains sorted order naturally
+- Good for range queries
+- Memory efficient
 
 **Cons:**
-- ❌ Can become unbalanced
-- ❌ Slower than HashMap for large datasets
-- ❌ Performance degrades with 300K+ words
+- Can become unbalanced
+- Slower than HashMap for large datasets
+- Performance degrades with 300K+ words
 
 ### HashMap
 
@@ -106,16 +106,16 @@ The web UI allows you to:
 **Space Complexity:** O(n)
 
 **Pros:**
-- ✅ **Fastest for lookups** - O(1) constant time
-- ✅ Excellent for large dictionaries (300K+ words)
-- ✅ No balancing issues
+- **Fastest for lookups** - O(1) constant time
+- Excellent for large dictionaries (300K+ words)
+- No balancing issues
 
 **Cons:**
-- ❌ Doesn't maintain order
-- ❌ Slightly more memory overhead
-- ❌ Hash collisions possible
+- Doesn't maintain order
+- Slightly more memory overhead
+- Hash collisions possible
 
-### 🏆 Winner: HashMap
+### Winner: HashMap
 
 For this spell checker with **~300,000 words**, **HashMap is significantly faster**:
 
@@ -123,7 +123,7 @@ For this spell checker with **~300,000 words**, **HashMap is significantly faste
 - **Add operation**: Both similar (need to re-sort file)
 - **List operation**: Same (reads from file)
 
-## 📊 System Architecture
+## System Architecture
 
 ### Overall Flow
 
@@ -218,7 +218,7 @@ sequenceDiagram
     NextJS-->>User: Display result
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Dictionary-spell-checker/
@@ -241,7 +241,7 @@ Dictionary-spell-checker/
     └── package.json
 ```
 
-## 🔧 Technical Details
+## Technical Details
 
 ### Data Structures
 
@@ -290,7 +290,7 @@ When adding words, the program:
 
 This ensures the dictionary always remains sorted.
 
-## 🛠️ Build Commands
+## Build Commands
 
 ```bash
 # Compile both programs
@@ -306,7 +306,7 @@ make hashmap
 make clean
 ```
 
-## 📝 API Endpoints
+## API Endpoints
 
 ### POST /api/check
 Check if a word exists in dictionary
@@ -367,14 +367,14 @@ GET /api/list?method=hashmap
 }
 ```
 
-## 🎯 Performance Tips
+## Performance Tips
 
 1. **For spell checking**: Use HashMap (faster lookups)
 2. **For small dictionaries (<10K words)**: Either works fine
 3. **For large dictionaries (300K+ words)**: HashMap is significantly better
 4. **Memory constrained**: BST uses slightly less memory
 
-## 🤝 Contributing
+## Contributing
 
 Feel free to improve the implementations:
 - Add AVL/Red-Black tree for balanced BST
@@ -382,11 +382,11 @@ Feel free to improve the implementations:
 - Add fuzzy matching for suggestions
 - Optimize hash function
 
-## 📜 License
+## License
 
 MIT License - Feel free to use for learning and projects!
 
-## 👨‍💻 Author
+## Author
 
 Created with ❤️ for learning data structures and algorithms
 
