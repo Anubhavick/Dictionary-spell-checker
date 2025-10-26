@@ -25,33 +25,33 @@ export default async function handler(
 
   const dictMethod = method === 'hashmap' ? 'hashmap' : 'bst';
   const projectRoot = path.join(process.cwd(), '..');
-  
-  const command = {
-    command: 'add',
-    word: word.toLowerCase().trim(),
-    method: dictMethod
-  };
+  const cleanWord = word.toLowerCase().trim();
 
-  const jsonCommand = JSON.stringify(command);
+  const startTime = Date.now();
 
-  exec(`cd ${projectRoot} && echo '${jsonCommand}' | ./dictionary_api`,
-    { timeout: 120000, maxBuffer: 1024 * 1024 },
+  exec(`cd ${projectRoot} && ./${dictMethod} add "${cleanWord}"`,
+    { timeout: 30000, maxBuffer: 1024 * 1024 },
     (error, stdout, stderr) => {
+      const timeMs = Date.now() - startTime;
+
       if (error) {
-        console.error('Error executing C API:', error);
+        console.error('Error executing C program:', error);
         return res.status(500).json({ error: 'Internal server error' });
       }
 
       if (stderr) {
-        console.error('C API stderr:', stderr);
+        console.error('C program stderr:', stderr);
       }
 
-      try {
-        const result = JSON.parse(stdout.trim());
-        return res.status(200).json(result);
-      } catch (e) {
-        console.error('Error parsing C API response:', e);
-        return res.status(500).json({ error: 'Invalid response from C API' });
-      }
+      const output = stdout.trim();
+      const success = output.startsWith('ADDED');
+      const alreadyExists = output.startsWith('EXISTS');
+
+      return res.status(200).json({
+        word: cleanWord,
+        success: success,
+        message: success ? 'Word added successfully' : (alreadyExists ? 'Word already exists' : 'Failed to add word'),
+        timeMs: timeMs
+      });
     });
 }

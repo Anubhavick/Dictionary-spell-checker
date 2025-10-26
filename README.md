@@ -1,570 +1,395 @@
 # Dictionary Spell Checker
 
-A high-performance spell-checking application with both **terminal (C)** and **web (Next.js)** interfaces, implementing **Binary Search Tree (BST)** and **Hash Map** data structures for efficient word lookup.
+A high-performance spell checker with both **Binary Search Tree (BST)** and **HashMap** implementations. Features a clean web interface built with Next.js and powerful C backend for fast dictionary operations.
 
-## Overview
+## 📚 Features
 
-This project provides dual interfaces for spell-checking with two different data structure implementations for performance comparison:
+- ✅ **Check Spelling**: Verify if a word exists in the dictionary
+- ➕ **Add Words**: Add new words (automatically sorted alphabetically)
+- 📋 **View All**: List all dictionary words
+- 🔀 **Two Algorithms**: Choose between BST or HashMap
+- 🖥️ **Terminal Interface**: Simple, clean CLI
+- 🌐 **Web Interface**: Modern, responsive UI
 
-### 1. Terminal Application (C)
-Command-line interface with ANSI color support and BST implementation
+## 🚀 Quick Start
 
-### 2. Web Application (Next.js)
-Modern browser-based UI running on `localhost:3000` with both BST and Hash Map backends
-
-### 3. Performance Comparison Tool
-Benchmark utility to compare BST vs Hash Map performance
-
----
-
-## Features
-
-### Core Functionality
-- **Spell Checking**: Verify if a word is spelled correctly (case-insensitive)
-- **Word Addition**: Add new words to the dictionary with persistence
-- **Dictionary Listing**: Display all words in alphabetical order
-- **Smart Suggestions**: Prefix matching for misspelled words
-- **Dual Data Structures**: Choose between BST or Hash Map
-- **Performance Metrics**: Real-time timing information for operations
-
-### Terminal App
-- Colorful ANSI output with emojis
-- Lightweight and fast
-- Zero dependencies
-- Uses BST implementation
-
-### Web App
-- **Method Selector**: Toggle between BST and Hash Map implementations
-- **Performance Display**: Shows execution time for each operation
-- **Modern UI**: Responsive design with Tailwind CSS
-- **C Backend**: Actual C implementations (not TypeScript) via JSON API
-- **Live Comparison**: Switch methods and see performance differences in real-time
-- Mobile-friendly design
-
-### Performance
-| Operation | BST | Hash Map | Speedup |
-|-----------|-----|----------|---------|
-| Build (370K words) | 53,929 ms | 26.7 ms | 2,018x |
-| Search (average) | 0.069 ms | 0.0003 ms | 231x |
-| Memory Usage | 37 MB | 40 MB | -8% |
-
----
-
-## Quick Start
-
-### Terminal Application
-
-Build and run the C program:
+### Compile the C Programs
 
 ```bash
 make
-./spellchecker
 ```
 
-### Web Application
+This creates two executables:
+- `./bst` - Binary Search Tree implementation
+- `./hashmap` - HashMap implementation
 
-Navigate to `web-ui` and start the Next.js dev server:
+### Terminal Usage
 
+#### Check if a word exists
+```bash
+./bst check hello
+# Output: FOUND: 'hello'
+
+./hashmap check xyz
+# Output: NOT_FOUND: 'xyz'
+```
+
+#### Add a new word
+```bash
+./bst add myword
+# Output: ADDED: 'myword'
+
+./hashmap add myword
+# Output: EXISTS: 'myword' (if already exists)
+```
+
+#### List all words
+```bash
+./bst list
+# Output: All dictionary words (one per line)
+
+./hashmap list
+```
+
+### Web Interface
+
+1. **Install dependencies:**
 ```bash
 cd web-ui
 npm install
+```
+
+2. **Start the development server:**
+```bash
 npm run dev
 ```
 
-Then open `http://localhost:3000` in your browser.
+3. **Open in browser:**
+```
+http://localhost:3000
+```
 
----
+The web UI allows you to:
+- Choose between BST or HashMap method
+- Check spelling with visual feedback
+- Add new words to the dictionary
+- View all dictionary words
 
-## Architecture
+## 🔍 BST vs HashMap: Performance Comparison
 
-### System Flow
+### Binary Search Tree (BST)
+
+**Time Complexity:**
+- Search: O(log n) average, O(n) worst case
+- Insert: O(log n) average, O(n) worst case
+- List: O(n)
+
+**Space Complexity:** O(n)
+
+**Pros:**
+- ✅ Maintains sorted order naturally
+- ✅ Good for range queries
+- ✅ Memory efficient
+
+**Cons:**
+- ❌ Can become unbalanced
+- ❌ Slower than HashMap for large datasets
+- ❌ Performance degrades with 300K+ words
+
+### HashMap
+
+**Time Complexity:**
+- Search: O(1) average
+- Insert: O(1) average (but needs re-sort for file)
+- List: O(n)
+
+**Space Complexity:** O(n)
+
+**Pros:**
+- ✅ **Fastest for lookups** - O(1) constant time
+- ✅ Excellent for large dictionaries (300K+ words)
+- ✅ No balancing issues
+
+**Cons:**
+- ❌ Doesn't maintain order
+- ❌ Slightly more memory overhead
+- ❌ Hash collisions possible
+
+### 🏆 Winner: HashMap
+
+For this spell checker with **~300,000 words**, **HashMap is significantly faster**:
+
+- **Check operation**: HashMap ~1ms, BST ~100ms+
+- **Add operation**: Both similar (need to re-sort file)
+- **List operation**: Same (reads from file)
+
+## 📊 System Architecture
+
+### Overall Flow
 
 ```mermaid
 graph TB
-    A[User Input] --> B{Interface Type}
-    B -->|Terminal| C[C Application]
-    B -->|Web| D[Next.js Frontend]
-    D --> E[API Routes]
-    E --> F[TypeScript BST]
-    C --> G[C BST Implementation]
-    F --> H[dictionary.txt]
-    G --> H
-    H --> I[Persistent Storage]
-```
-
-### Data Structure: Binary Search Tree
-
-```mermaid
-graph TD
-    A[Root: 'lion'] --> B[Left: 'cat']
-    A --> C[Right: 'zebra']
-    B --> D[Left: 'apple']
-    B --> E[Right: 'dog']
-    C --> F[Left: 'snake']
-    C --> G[Right: null]
+    subgraph "Frontend - Next.js"
+        A[User Interface] --> B[API Routes]
+    end
     
-    style A fill:#e1f5ff
-    style B fill:#e1f5ff
-    style C fill:#e1f5ff
-    style D fill:#fff3e0
-    style E fill:#fff3e0
-    style F fill:#fff3e0
+    subgraph "Backend - C Programs"
+        B --> C{Choose Method}
+        C -->|BST| D[bst executable]
+        C -->|HashMap| E[hashmap executable]
+        D --> F[dictionary.txt]
+        E --> F
+    end
+    
+    F --> G[Alphabetically Sorted Words]
+    G --> D
+    G --> E
+    E --> B
+    D --> B
+    B --> A
 ```
 
-### Application Workflow
+### BST Operation Flow
 
 ```mermaid
 flowchart LR
-    A[Start] --> B[Load Dictionary]
-    B --> C[Display Menu]
-    C --> D{User Choice}
-    D -->|1| E[Check Spelling]
-    D -->|2| F[Add Word]
-    D -->|3| G[Display All]
-    D -->|4| H[Exit]
-    E --> I{Word Found?}
-    I -->|Yes| J[Show Success]
-    I -->|No| K[Show Suggestions]
-    J --> C
-    K --> C
-    F --> L[Insert to BST]
-    L --> M[Append to File]
-    M --> C
-    G --> N[In-order Traversal]
-    N --> C
-    H --> O[Free Memory]
-    O --> P[End]
+    A[Start] --> B[Load dictionary.txt]
+    B --> C[Build BST]
+    C --> D{Operation?}
+    
+    D -->|Check| E[Search in BST]
+    E --> F[Return FOUND/NOT_FOUND]
+    
+    D -->|Add| G[Search if exists]
+    G -->|Not found| H[Insert into BST]
+    H --> I[Convert to sorted array]
+    I --> J[Save to dictionary.txt]
+    J --> K[Return ADDED]
+    
+    G -->|Found| L[Return EXISTS]
+    
+    D -->|List| M[Read from file]
+    M --> N[Print all words]
 ```
 
----
-
-## Data Structures: BST vs HashMap
-
-This project implements **two data structures** for word storage, allowing performance comparison:
-
-### Binary Search Tree (BST)
-- **Ordered structure**: Keeps words in sorted order automatically
-- **In-order traversal**: Prints words alphabetically without additional sorting
-- **Operations**: O(log n) average case for balanced tree
-- **Memory efficient**: Lower memory overhead
-
-### Hash Map
-- **Fast lookups**: O(1) average case for search and insert
-- **Collision handling**: Separate chaining with linked lists
-- **Dynamic resizing**: Automatically grows when load factor exceeds 0.75
-- **Hash function**: DJB2 algorithm for string hashing
-
-### Performance Comparison
-
-Real-world benchmark with **370,105 words**:
-
-| Metric | BST | HashMap | Winner |
-|--------|-----|---------|--------|
-| Build Time | 54,784 ms | 26 ms | HashMap (2140x faster) |
-| Search Time (avg) | 0.0685 ms | 0.0003 ms | HashMap (228x faster) |
-| Memory Usage | ~15.9 MB | ~17.1 MB | BST (7% less) |
-
-**Recommendation**: Use HashMap for speed-critical applications, BST for memory-constrained environments.
-
----
-
-## Terminal Application Usage
-
-### Build
-
-```bash
-make
-```
-
-This compiles `main.c` into the `spellchecker` executable.
-
-### Run
-
-```bash
-./spellchecker
-```
-
-### Interactive Menu
-
-The terminal app presents a menu interface:
-
-```
-╔════════════════════════════════════════╗
-║   Dictionary Spell Checker             ║
-╚════════════════════════════════════════╝
-
-1) Check spelling
-2) Add new word to dictionary  
-3) Display all dictionary words
-4) Exit
-```
-
-**Option 1: Check Spelling**
-- Enter a word (e.g., `Cat`)
-- Case-insensitive matching
-- Shows success message if correct or suggestions if not found
-
-**Option 2: Add Word**
-- Enter a new word
-- Adds to in-memory BST and appends to `dictionary.txt`
-
-**Option 3: Display All**
-- Shows all words in alphabetical order
-- Color-coded output
-
-**Option 4: Exit**
-- Safely exits and frees memory
-
-### Example Session
-
-```bash
-$ ./spellchecker
-
-Enter choice: 1
-Enter word to check: hello
-'hello' is spelled correctly!
-
-Enter choice: 1  
-Enter word to check: helo
-'helo' is NOT found in the dictionary.
-
-Suggestions:
-  -> hello
-  -> help
-  -> held
-
-Enter choice: 2
-Enter new word to add: helo
-'helo' added to dictionary and saved to file!
-
-Enter choice: 4
-Goodbye! Exiting...
-```
-
----
-
-## Web Application Usage
-
-### Setup
-
-```bash
-cd web-ui
-npm install
-```
-
-### Run Development Server
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:3000` in your browser.
-
-### Production Build
-
-```bash
-npm run build
-npm start
-```
-
-### Using the Web Interface
-
-1. **Check Spelling**: Type a word in the input field and click "Check Spelling" (or press Enter)
-2. **Add Word**: Click "Add Word" to add the current word to the dictionary
-3. **View All**: Click "View All" to see the entire dictionary in a modal
-4. **Click Suggestions**: When a word is misspelled, click any suggestion chip to check it
-
-The web app features:
-- Real-time feedback
-- Color-coded results (green for correct, red for not found)
-- Clickable suggestion chips
-- Responsive layout for mobile/desktop
-
----
-
-## Project Structure
+### HashMap Operation Flow
 
 ```mermaid
-graph LR
-    A[Dictionary-spell-checker/] --> B[main.c]
-    A --> C[Makefile]
-    A --> D[dictionary.txt]
-    A --> E[download-dictionary.sh]
-    A --> F[README.md]
-    A --> G[web-ui/]
+flowchart LR
+    A[Start] --> B[Load dictionary.txt]
+    B --> C[Build HashMap]
+    C --> D{Operation?}
     
-    G --> H[lib/]
-    G --> I[pages/]
-    G --> J[styles/]
-    G --> K[package.json]
+    D -->|Check| E[Hash function]
+    E --> F[Lookup in table]
+    F --> G[Return FOUND/NOT_FOUND]
     
-    H --> L[bst.ts]
-    H --> M[dictionary.ts]
+    D -->|Add| H[Check if exists]
+    H -->|Not found| I[Load all words]
+    I --> J[Add new word]
+    J --> K[Sort array]
+    K --> L[Save to dictionary.txt]
+    L --> M[Return ADDED]
     
-    I --> N[api/]
-    I --> O[index.tsx]
+    H -->|Found| N[Return EXISTS]
     
-    N --> P[check.ts]
-    N --> Q[add.ts]
-    N --> R[list.ts]
-    
-    style A fill:#e3f2fd
-    style G fill:#fff3e0
-    style H fill:#f1f8e9
-    style I fill:#f1f8e9
-    style N fill:#fce4ec
+    D -->|List| O[Read from file]
+    O --> P[Print all words]
 ```
 
-### Directory Layout
+### Web API Integration
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NextJS
+    participant API
+    participant C Program
+    participant Dictionary
+
+    User->>NextJS: Enter word + Select method
+    NextJS->>API: POST /api/check {word, method}
+    API->>C Program: Execute ./bst or ./hashmap
+    C Program->>Dictionary: Read dictionary.txt
+    Dictionary-->>C Program: Load words
+    C Program->>C Program: Search operation
+    C Program-->>API: FOUND: 'word' or NOT_FOUND
+    API-->>NextJS: JSON {found, word, timeMs}
+    NextJS-->>User: Display result
+```
+
+## 📁 Project Structure
 
 ```
 Dictionary-spell-checker/
-├── main.c                    # C implementation with BST
-├── hashmap.h                 # HashMap header file
-├── hashmap.c                 # HashMap implementation in C
-├── compare_methods.c         # Performance comparison tool
-├── Makefile                  # Build configuration
-├── dictionary.txt            # Word list (shared by both apps)
-├── download-dictionary.sh    # Script to get comprehensive word list
-├── README.md                 # This file
-└── web-ui/                   # Next.js web application
-    ├── lib/
-    │   ├── bst.ts           # TypeScript BST implementation
-    │   └── dictionary.ts    # Dictionary loader/saver
+├── bst.c                  # BST implementation
+├── hashmap.c              # HashMap implementation
+├── utils.c                # Shared utilities
+├── utils.h                # Header file
+├── Makefile               # Build configuration
+├── dictionary.txt         # ~300K words (alphabetically sorted)
+├── README.md              # This file
+└── web-ui/
     ├── pages/
-    │   ├── api/
-    │   │   ├── check.ts     # Spell check endpoint
-    │   │   ├── add.ts       # Add word endpoint
-    │   │   └── list.ts      # List words endpoint
-    │   ├── _app.tsx         # App wrapper
-    │   └── index.tsx        # Main UI page
+    │   ├── index.tsx      # Main UI
+    │   └── api/
+    │       ├── check.ts   # Spell check API
+    │       ├── add.ts     # Add word API
+    │       └── list.ts    # List words API
     ├── styles/
-    │   └── globals.css      # Tailwind CSS
-    ├── package.json
-    └── README.md            # Web app specific docs
+    │   └── globals.css
+    └── package.json
 ```
 
----
+## 🔧 Technical Details
 
-## Expanding the Dictionary
+### Data Structures
 
-The default `dictionary.txt` has only ~28 words for testing. To use a comprehensive English dictionary:
+**BST Node:**
+```c
+typedef struct Node {
+    char word[100];
+    struct Node *left;
+    struct Node *right;
+} Node;
+```
 
-### Download Full Word List
+**HashMap Node:**
+```c
+typedef struct HashNode {
+    char word[100];
+    struct HashNode *next;  // Chaining for collisions
+} HashNode;
+```
+
+### Hash Function
+
+Uses polynomial rolling hash with prime modulo:
+```c
+hash_value = (hash_value * 31 + char) % 10007
+```
+
+### File Format
+
+`dictionary.txt` contains one word per line, sorted alphabetically:
+```
+a
+aa
+aaa
+...
+zymurgy
+```
+
+### Alphabetical Ordering
+
+When adding words, the program:
+1. Loads all existing words
+2. Adds the new word
+3. Sorts using `qsort()` with `strcmp()`
+4. Writes back to `dictionary.txt`
+
+This ensures the dictionary always remains sorted.
+
+## 🛠️ Build Commands
 
 ```bash
-./download-dictionary.sh
-```
-
-This downloads ~**466,000 English words** from [dwyl/english-words](https://github.com/dwyl/english-words).
-
-### Integration Options
-
-**Option 1: Replace**
-```bash
-mv dictionary-full.txt dictionary.txt
-```
-
-**Option 2: Merge**
-```bash
-cat dictionary.txt dictionary-full.txt | sort -u > dictionary-merged.txt
-mv dictionary-merged.txt dictionary.txt
-```
-
-**Option 3: Keep both** (recommended)
-
----
-
-## Implementation Details
-
-### Case Handling
-All words are lowercased automatically. `Cat` and `cat` are treated the same.
-
-### Dictionary File
-- Both apps read from `dictionary.txt`
-- New words are appended when added
-- Changes persist across sessions
-
-### Suggestions Algorithm
-
-```mermaid
-flowchart TD
-    A[User enters word] --> B{Word found?}
-    B -->|Yes| C[Return success]
-    B -->|No| D[Search for prefix matches]
-    D --> E{Prefix matches found?}
-    E -->|Yes| F[Return up to 10 matches]
-    E -->|No| G[Return first 10 words]
-    F --> H[Display suggestions]
-    G --> H
-```
-
-Algorithm steps:
-1. Find words with matching prefix (up to 10)
-2. If no prefix matches, show first 10 words alphabetically
-3. Simple and fast for most use cases
-
-### Performance Complexity
-
-| Operation | Average Case | Worst Case | Space |
-|-----------|-------------|------------|-------|
-| Search    | O(log n)    | O(n)       | O(1)  |
-| Insert    | O(log n)    | O(n)       | O(1)  |
-| Delete    | O(log n)    | O(n)       | O(1)  |
-| Traversal | O(n)        | O(n)       | O(n)  |
-
-**Notes:**
-- Average case assumes a balanced BST
-- Worst case occurs with sorted input (degenerates to linked list)
-- For large dictionaries, consider AVL or Red-Black tree for guaranteed O(log n)
-
----
-
-## Future Enhancements
-
-### Suggestions
-- Levenshtein distance for smarter corrections
-- Phonetic matching (Soundex, Metaphone)
-- N-gram based similarity
-
-### Performance
-- Balanced BST (AVL/Red-Black tree)
-- Trie data structure for prefix queries
-- Hash table for O(1) lookup
-
-### Features
-- Word definitions via external API
-- Multiple language support
-- User authentication and personal dictionaries
-- Import/export functionality
-- Word frequency analysis
-- Autocomplete functionality
-
----
-
-## Development
-
-### Clean Build
-
-```bash
-make clean
+# Compile both programs
 make
+
+# Compile only BST
+make bst
+
+# Compile only HashMap
+make hashmap
+
+# Clean build files
+make clean
 ```
 
-### Performance Comparison Tool
+## 📝 API Endpoints
 
-Run the benchmark tool to compare BST vs HashMap performance:
+### POST /api/check
+Check if a word exists in dictionary
 
-```bash
-make compare
-./compare_methods
+**Request:**
+```json
+{
+  "word": "hello",
+  "method": "hashmap"
+}
 ```
 
-This will show:
-- Build time comparison
-- Search time comparison with 10 test words
-- Average search time per operation
-- Speed-up factor (HashMap vs BST)
-- Memory usage analysis
-- Complexity analysis table
-
-Example output:
-```
-┌─────────────────────────────────────────────┐
-│  SEARCH TIME COMPARISON (10 searches)       │
-├─────────────────────────────────────────────┤
-│  BST:       0.068500 ms (avg)               │
-│  HashMap:   0.000300 ms (avg)               │
-│  Speedup: 228.33x                           │
-│  Winner:  HashMap                           │
-└─────────────────────────────────────────────┘
+**Response:**
+```json
+{
+  "word": "hello",
+  "found": true,
+  "timeMs": 2,
+  "method": "hashmap"
+}
 ```
 
-### Testing
+### POST /api/add
+Add a word to dictionary
 
-Terminal app:
-```bash
-echo -e "1\ntest\n4" | ./spellchecker
+**Request:**
+```json
+{
+  "word": "newword",
+  "method": "bst"
+}
 ```
 
-Web app:
-```bash
-cd web-ui
-npm run build
-npm test  # if tests are added
+**Response:**
+```json
+{
+  "word": "newword",
+  "success": true,
+  "message": "Word added successfully",
+  "timeMs": 150
+}
 ```
 
-### API Endpoints
+### GET /api/list
+Get all dictionary words
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/check` | POST | Check if word exists, return suggestions |
-| `/api/add` | POST | Add new word to dictionary |
-| `/api/list` | GET | Get all words in alphabetical order |
+**Request:**
+```
+GET /api/list?method=hashmap
+```
 
-All API endpoints accept a `method` parameter (`bst` or `hashmap`) to select the data structure implementation.
+**Response:**
+```json
+{
+  "words": ["a", "aa", "aaa", ...],
+  "count": 300000,
+  "timeMs": 500
+}
+```
+
+## 🎯 Performance Tips
+
+1. **For spell checking**: Use HashMap (faster lookups)
+2. **For small dictionaries (<10K words)**: Either works fine
+3. **For large dictionaries (300K+ words)**: HashMap is significantly better
+4. **Memory constrained**: BST uses slightly less memory
+
+## 🤝 Contributing
+
+Feel free to improve the implementations:
+- Add AVL/Red-Black tree for balanced BST
+- Implement Trie for prefix searching
+- Add fuzzy matching for suggestions
+- Optimize hash function
+
+## 📜 License
+
+MIT License - Feel free to use for learning and projects!
+
+## 👨‍💻 Author
+
+Created with ❤️ for learning data structures and algorithms
 
 ---
 
-## Optimizations
-
-This project has been carefully optimized for maximum performance. See [`OPTIMIZATIONS.md`](OPTIMIZATIONS.md) for detailed information.
-
-### Key Optimizations Applied
-
-1. **Hash Function**: Upgraded from DJB2 to FNV-1a (better distribution, faster)
-2. **BST Search**: Changed from recursive to iterative (eliminates function call overhead)
-3. **Dictionary Loading**: Single load at startup (eliminates repeated I/O)
-4. **JSON Parsing**: Manual parsing instead of `sscanf()` (reduced overhead)
-5. **Memory Management**: Reduced allocations by ~20% (fewer `strdup()` calls)
-6. **Load Factor Check**: Bit-shift optimization `(size << 2) > (capacity * 3)` instead of division
-7. **Code Size**: Reduced by 30% through unification and deduplication
-
-### Performance Comparison: Original vs Optimized
-
-| Metric | Original | Optimized | Improvement |
-|--------|----------|-----------|-------------|
-| BST Search | 0.0695 ms | 0.0650 ms | 6.5% faster |
-| Code Lines | ~450 | ~312 | 30% smaller |
-| Allocations | Many | Fewer | ~20% reduction |
-| Startup | Per-request load | One-time load | Amortized gain |
-
-### Benchmark Script
-
-Run the included benchmark to test performance:
-
-```bash
-./benchmark.sh
-```
-
-This will test both BST and Hash Map methods with 10 common words and display timing information.
-
----
-
-## License
-
-This project is open source and available for educational purposes.
-
----
-
-## Contributing
-
-Contributions are welcome! Suggested improvements:
-- Add unit tests
-- Implement Levenshtein distance for better suggestions
-- Create mobile app version
-- Add word frequency analysis
-- Implement autocomplete with trie data structure
-- Add multi-language support
-- Implement lazy loading for BST (load on first use)
-- Add Redis caching layer for web API
-
----
-
-## Acknowledgments
-
-- Dictionary word list from [dwyl/english-words](https://github.com/dwyl/english-words)
-- Built with C (std=c11), Next.js, TypeScript, and Tailwind CSS
-- Hash function: FNV-1a algorithm
-- Optimizations inspired by performance profiling and benchmarking
-
+**Note:** HashMap is recommended for production use with large dictionaries due to O(1) lookup time vs BST's O(log n) or O(n) in worst case.

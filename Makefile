@@ -1,21 +1,16 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -O2
-TARGET = spellchecker
-COMPARE = compare_methods
-API = dictionary_api
+CFLAGS = -Wall -Wextra -std=c99
+TARGETS = bst hashmap
 
-all: $(TARGET) $(API)
+all: $(TARGETS)
 
-$(TARGET): main.c hashmap.c hashmap.h
-	$(CC) $(CFLAGS) -o $(TARGET) main.c hashmap.c
+bst: bst.c utils.c utils.h
+	$(CC) $(CFLAGS) -o bst bst.c utils.c
 
-$(COMPARE): compare_methods.c hashmap.c hashmap.h
-	$(CC) $(CFLAGS) -o $(COMPARE) compare_methods.c hashmap.c
-
-$(API): dictionary_api.c hashmap.c hashmap.h
-	$(CC) $(CFLAGS) -o $(API) dictionary_api.c hashmap.c
-
-compare: $(COMPARE)
+hashmap: hashmap.c utils.c utils.h
+	$(CC) $(CFLAGS) -o hashmap hashmap.c utils.c
 
 clean:
-	rm -f $(TARGET) $(COMPARE) $(API)
+	rm -f $(TARGETS)
+
+.PHONY: all clean
